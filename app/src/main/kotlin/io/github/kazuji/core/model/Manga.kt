@@ -10,6 +10,7 @@ import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.strikeThrough
+import io.github.kazuji.BuildConfig
 import io.github.kazuji.R
 import io.github.kazuji.core.ui.model.MangaOverride
 import io.github.kazuji.core.util.ext.iterator
@@ -130,7 +131,7 @@ val Manga.isBroken: Boolean
 	get() = source == UnknownMangaSource
 
 val Manga.appUrl: Uri
-	get() = "https://kazuji-reader.github.io/manga".toUri()
+	get() = BuildConfig.MANGA_SHARE_PAGE_URL.toUri()
 		.buildUpon()
 		.appendQueryParameter("source", source.name)
 		.appendQueryParameter("name", title)
