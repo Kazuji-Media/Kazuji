@@ -3,6 +3,7 @@ package io.github.kazuji.core.parser
 import android.net.Uri
 import coil3.request.CachePolicy
 import dagger.Reusable
+import io.github.kazuji.BuildConfig
 import io.github.kazuji.core.model.MangaSource
 import io.github.kazuji.core.model.UnknownMangaSource
 import io.github.kazuji.core.model.isNsfw
@@ -20,13 +21,22 @@ import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import javax.inject.Inject
 
 private val APP_DEEP_LINK_SCHEMES = setOf("kazuji", "futon", "kotatsu")
-private val APP_DEEP_LINK_HOSTS = setOf("kazuji-reader.github.io", "futonapp.pages.dev")
+private val LEGACY_APP_DEEP_LINK_HOSTS = setOf("kazuji-reader.github.io", "futon.app", "futonapp.pages.dev")
+private val APP_DEEP_LINK_HOSTS = LEGACY_APP_DEEP_LINK_HOSTS + BuildConfig.MANGA_SHARE_HOST
+private val APP_DEEP_LINK_PATHS = BuildConfig.MANGA_SHARE_PAGE_PATH
+	.trim('/')
+	.split('/')
+	.filter(String::isNotEmpty)
 
 internal fun isMangaAppLinkEndpoint(scheme: String?, host: String?, pathSegments: List<String>): Boolean =
 	if (APP_DEEP_LINK_SCHEMES.any { scheme.equals(it, ignoreCase = true) }) {
 		host.equals("manga", ignoreCase = true)
 	} else {
-		pathSegments.singleOrNull() == "manga"
+		(
+			host.equals(BuildConfig.MANGA_SHARE_HOST, ignoreCase = true) && pathSegments == APP_DEEP_LINK_PATHS
+		) || (
+			LEGACY_APP_DEEP_LINK_HOSTS.any { host.equals(it, ignoreCase = true) } && pathSegments == listOf("manga")
+		)
 	}
 
 @Reusable

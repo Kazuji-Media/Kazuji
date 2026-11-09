@@ -92,8 +92,8 @@
 
 				<data
 					android:scheme="https"
-					android:host="kazuji-reader.github.io"
-					android:pathPrefix="/manga" />
+					android:host="${mangaShareHost}"
+					android:pathPrefix="${mangaSharePathPrefix}" />
 			</intent-filter>
 			<intent-filter android:autoVerify="true">
 				<action android:name="android.intent.action.VIEW" />
@@ -125,17 +125,7 @@
 					android:host="futonapp.pages.dev"
 					android:pathPrefix="/manga" />
 			</intent-filter>
-			<intent-filter android:autoVerify="true">
-				<action android:name="android.intent.action.VIEW" />
 
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-
-				<data
-					android:scheme="https"
-					android:host="kazuji-reader.github.io"
-					android:pathPrefix="/manga" />
-			</intent-filter>
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
