@@ -65,6 +65,15 @@
    ```
    Output: `app/build/outputs/apk/nightly/app-nightly.apk`
 
+### APK signing and compatible updates
+
+- **Production release:** `io.github.kazuji`, signed with the original release keystore. Always use the same signing certificate and a `versionCode` greater than the installed version.
+- **Signed Upgrade Test:** use the `Signed Upgrade Test` GitHub Actions workflow on the trusted `main` branch. It builds a release-variant APK with the **production application ID**, signs it using the existing release secrets, checks its certificate against the published `v9.8.5` APK, and uploads `kazuji-signed-upgrade-apk` as an artifact. It is a test artifact, not a stable release.
+- **PR Debug Build:** `io.github.kazuji.debug` uses the CI runner's debug signing key. It is a separate app, cannot upgrade production, and its signature may differ across runners/builds. Do not rely on PR debug APKs to preserve existing debug app data.
+- **Nightly:** `io.github.kazuji.nightly` also installs separately, even though it uses the release signing keystore.
+
+**Preserved data after uninstall:** Android can retain signing metadata when uninstalling with data kept. If a new APK reports a signature conflict, first reinstall an APK from the same original distribution/signing key and export a backup from within the app. Do **not** erase kept data unless you accept losing it. GitHub release signing may differ from a separately distributed build (for example, an F-Droid-signed APK).
+
 ### Running Tests
 
 - **Unit tests:**
