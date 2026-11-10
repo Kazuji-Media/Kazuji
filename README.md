@@ -75,13 +75,13 @@
 
 1. Generate a keystore once on a trusted machine, for example:
    ```bash
-   keytool -genkeypair -keystore kazuji-dev.jks -storetype PKCS12 \\
-     -alias kazuji-dev -keyalg RSA -keysize 3072 -validity 10000 \\
+   keytool -genkeypair -keystore kazuji-dev.jks -storetype PKCS12 \
+     -alias kazuji-dev -keyalg RSA -keysize 3072 -validity 10000 \
      -dname "CN=Kazuji Dev, O=Kazuji"
    ```
    Enter and securely store the password. Do not commit the private key or paste passwords into repository files.
 2. In GitHub **Settings → Secrets and variables → Actions**, set:
-   - `DEV_KEYSTORE_BASE64`: the base64 content of the keystore, e.g. `base64 < kazuji-dev.jks | tr -d '\\n'` on macOS/Linux.
+   - `DEV_KEYSTORE_BASE64`: the base64 content of the keystore, e.g. `base64 < kazuji-dev.jks | tr -d '\n'` on macOS/Linux.
    - `DEV_KEYSTORE_PASSWORD`: keystore password.
    - `DEV_KEY_ALIAS`: `kazuji-dev`.
    - `DEV_KEY_PASSWORD`: key password (for PKCS12 normally the same as the keystore password).
