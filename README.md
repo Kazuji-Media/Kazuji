@@ -67,12 +67,31 @@
 
 ### APK signing and compatible updates
 
-- **Production release:** `io.github.kazuji`, signed with the original release keystore. Always use the same signing certificate and a `versionCode` greater than the installed version.
-- **Signed Upgrade Test:** use the `Signed Upgrade Test` GitHub Actions workflow on the trusted `main` branch. It builds a release-variant APK with the **production application ID**, signs it using the existing release secrets, checks its certificate against the published `v9.8.5` APK, and uploads `kazuji-signed-upgrade-apk` as an artifact. It is a test artifact, not a stable release.
-- **PR Debug Build:** `io.github.kazuji.debug` uses the CI runner's debug signing key. It is a separate app, cannot upgrade production, and its signature may differ across runners/builds. Do not rely on PR debug APKs to preserve existing debug app data.
-- **Nightly:** `io.github.kazuji.nightly` also installs separately, even though it uses the release signing keystore.
+**Kazuji stable** is `io.github.kazuji` and has its own release signing key; the normal app is unaffected by Dev signing.
 
-**Preserved data after uninstall:** Android can retain signing metadata when uninstalling with data kept. If a new APK reports a signature conflict, first reinstall an APK from the same original distribution/signing key and export a backup from within the app. Do **not** erase kept data unless you accept losing it. GitHub release signing may differ from a separately distributed build (for example, an F-Droid-signed APK).
+**Kazuji Dev** is `io.github.kazuji.debug`. The `Stable Dev Build` GitHub Actions workflow signs Dev APKs with a permanent, **separate Dev key**, so future APKs from that workflow can update each other. Unlike CI/PR debug builds, these are intended for installation and ongoing testing.
+
+**One-time Dev signing setup (repository maintainer):**
+
+1. Generate a keystore once on a trusted machine, for example:
+   ```bash
+   keytool -genkeypair -keystore kazuji-dev.jks -storetype PKCS12 \\
+     -alias kazuji-dev -keyalg RSA -keysize 3072 -validity 10000 \\
+     -dname "CN=Kazuji Dev, O=Kazuji"
+   ```
+   Enter and securely store the password. Do not commit the private key or paste passwords into repository files.
+2. In GitHub **Settings → Secrets and variables → Actions**, set:
+   - `DEV_KEYSTORE_BASE64`: the base64 content of the keystore, e.g. `base64 < kazuji-dev.jks | tr -d '\\n'` on macOS/Linux.
+   - `DEV_KEYSTORE_PASSWORD`: keystore password.
+   - `DEV_KEY_ALIAS`: `kazuji-dev`.
+   - `DEV_KEY_PASSWORD`: key password (for PKCS12 normally the same as the keystore password).
+   - `DEV_CERT_SHA256`: certificate SHA-256 from `keytool -list -v -keystore kazuji-dev.jks -alias kazuji-dev` (with or without colons).
+3. Back up the `.jks` securely outside GitHub. A lost keystore cannot sign compatible upgrades.
+4. Use **Actions → Stable Dev Build → Run workflow** on `main`. Every successful run creates `kazuji-dev-stable-signed-apk` and optionally a Dev prerelease. Never use the PR debug artifacts as upgrades.
+
+**Old Kazuji Dev data kept after uninstall:** Android may retain the old signing identity after `adb uninstall -k` or uninstall with “keep data”. A new Dev keystore **cannot** update that old signature. Reinstall the **exact old Dev APK** (or another APK signed with its same old key), export an in-app backup, verify the backup, then fully uninstall **only Dev** without keeping data. Install the new signed Dev APK and import the backup. If the old key/APK is unavailable, recovery of kept app-private data may not be possible without prior backups. Do not remove retained data before confirming that it can be restored.
+
+**PR Debug Build** continues to use an ephemeral Android debug key for CI only, may differ across runners, and must not be treated as an upgrade path. **Nightly** uses `io.github.kazuji.nightly` and remains a separate app.
 
 ### Running Tests
 
