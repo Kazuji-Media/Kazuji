@@ -61,6 +61,16 @@ jobs:
           path.write_text(text, encoding='utf-8')
           PY
 
+      - name: Wait for JitPack to publish the parser
+        if: steps.parser.outputs.build == 'true'
+        env:
+          PARSER_SHA: ${{ steps.parser.outputs.sha }}
+        run: |
+          set -euo pipefail
+          url="https://jitpack.io/com/github/Kazuji-Media/kotatsu-parsers-redo/$PARSER_SHA/kotatsu-parsers-redo-$PARSER_SHA.pom"
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 15 \
+            --retry-all-errors --connect-timeout 30 --max-time 600 --output /dev/null "$url"
+
       - name: Setup Java
         if: steps.parser.outputs.build == 'true'
         uses: actions/setup-java@v6
