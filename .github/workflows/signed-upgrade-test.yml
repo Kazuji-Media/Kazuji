@@ -1,0 +1,137 @@
+name: Signed Upgrade Test
+
+# Never run this workflow for pull requests: it uses the private production signing key.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/signed-upgrade-test.yml"
+      - "gradle/libs.versions.toml"
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: "Must be greater than the installed Kazuji versionCode"
+        type: number
+        required: true
+        default: 90806
+      version_name:
+        description: "Test build version name"
+        type: string
+        required: true
+        default: "9.8.6-rc1"
+
+permissions:
+  contents: read
+
+jobs:
+  build-signed-upgrade:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      TEST_VERSION_CODE: ${{ inputs.version_code || '90806' }}
+      TEST_VERSION_NAME: ${{ inputs.version_name || '9.8.6-rc1' }}
+
+    steps:
+      - name: Checkout trusted main branch
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: temurin
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Validate upgrade version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! [[ "$TEST_VERSION_CODE" =~ ^[0-9]+$ ]] || (( TEST_VERSION_CODE <= 90805 )); then
+            echo "::error::Test versionCode must be an integer greater than 90805 (v9.8.5)."
+            exit 1
+          fi
+
+      - name: Prepare production signing keystore
+        shell: bash
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for var in KEYSTORE_B64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [ -z "${!var:-}" ]; then
+              echo "::error::Missing signing secret: $var"
+              exit 1
+            fi
+          done
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/kazuji-release.jks"
+          test -s "$RUNNER_TEMP/kazuji-release.jks"
+
+      - name: Assemble upgrade-compatible signed APK
+        shell: bash
+        env:
+          KEYSTORE_FILE: ${{ runner.temp }}/kazuji-release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          ./gradlew :app:assembleRelease \
+            -PversionCode="$TEST_VERSION_CODE" \
+            -PversionName="$TEST_VERSION_NAME" \
+            --stacktrace --no-build-cache --no-configuration-cache
+          test -s app/build/outputs/apk/release/app-release.apk
+
+      - name: Verify package identity and production signing certificate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          candidate="app/build/outputs/apk/release/app-release.apk"
+          mkdir -p "$RUNNER_TEMP/previous-release"
+          gh release download v9.8.5 \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern app-release.apk \
+            --dir "$RUNNER_TEMP/previous-release"
+          echo "21272f77fcd104939107e0859b5b7af963d52f1c35bb69a6d81cd342de5995fd  $RUNNER_TEMP/previous-release/app-release.apk" | sha256sum --check
+
+          apksigner=$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name apksigner -type f | sort -V | tail -n 1)
+          aapt=$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name aapt -type f | sort -V | tail -n 1)
+          test -n "$apksigner" && test -n "$aapt"
+          original_cert=$("$apksigner" verify --print-certs "$RUNNER_TEMP/previous-release/app-release.apk" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n 1)
+          candidate_cert=$("$apksigner" verify --print-certs "$candidate" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n 1)
+          if [ -z "$original_cert" ] || [ "$original_cert" != "$candidate_cert" ]; then
+            echo "::error::Signing certificate differs from official Kazuji v9.8.5. Refusing to distribute this APK."
+            exit 1
+          fi
+
+          package_line=$("$aapt" dump badging "$candidate" | grep '^package:' | head -n 1)
+          if [[ "$package_line" != *"name='io.github.kazuji'"* ]] || [[ "$package_line" != *"versionCode='$TEST_VERSION_CODE'"* ]]; then
+            echo "::error::Unexpected applicationId or versionCode: $package_line"
+            exit 1
+          fi
+          echo "Signer SHA-256 verified against v9.8.5: $candidate_cert"
+          echo "$package_line"
+          sha256sum "$candidate"
+
+      - name: Upload upgrade-compatible signed APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: kazuji-signed-upgrade-apk
+          path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Remove signing keystore
+        if: always()
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/kazuji-release.jks"
