@@ -54,10 +54,23 @@ android {
             keyAlias System.getenv('KEY_ALIAS') ?: System.console()?.readLine("Key alias: ")
             keyPassword = System.getenv('KEY_PASSWORD') ?: System.console()?.readPassword("Key password: ")?.toString()
 		}
+		if (project.hasProperty('stableDevSigning')) {
+			stableDev {
+				storeFile file(System.getenv('DEV_KEYSTORE_FILE') ?: 'missing-dev-keystore.jks')
+				storePassword System.getenv('DEV_KEYSTORE_PASSWORD')
+				keyAlias System.getenv('DEV_KEY_ALIAS')
+				keyPassword System.getenv('DEV_KEY_PASSWORD')
+			}
+		}
 	}
 	buildTypes {
 		debug {
 			applicationIdSuffix = '.debug'
+			// PR/debug builds keep their disposable Android debug key.
+			// Only the trusted Stable Dev workflow enables a persistent dedicated key.
+			if (project.hasProperty('stableDevSigning')) {
+				signingConfig signingConfigs.stableDev
+			}
 			buildConfigField "String", "SENTRY_DSN", '""'
 		}
 		release {

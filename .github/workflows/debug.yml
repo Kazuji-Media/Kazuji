@@ -1,13 +1,6 @@
-name: Debug Build (PR)
+name: PR Debug Build (ephemeral signature)
 
 on:
-  workflow_dispatch:
-    inputs:
-      publish_release:
-        description: Publish this debug APK as a GitHub pre-release
-        required: true
-        type: boolean
-        default: false
   pull_request:
     branches:
       - main
@@ -45,7 +38,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: debug-apk
+          name: pr-debug-ephemeral-do-not-upgrade
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7
 
@@ -55,44 +48,10 @@ jobs:
         with:
           script: |
             const runUrl = `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
-            const comment = `Debug APK built successfully!\n\nDownload artifact: [debug-apk](${runUrl})\n\n_Artifact will be available for 7 days_`;
+            const comment = `PR-only debug APK compiled. Its signing key is **ephemeral** and this APK cannot update Kazuji Dev.\n\nArtifact (CI inspection only): [pr-debug-ephemeral-do-not-upgrade](${runUrl})`;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: comment
             });
-
-  publish_debug_release:
-    name: Publish debug APK pre-release
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_release }}
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - name: Download debug APK
-        uses: actions/download-artifact@v8
-        with:
-          name: debug-apk
-          path: release-assets
-
-      - name: Publish debug APK to GitHub Releases
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: debug-${{ github.run_number }}-${{ github.run_attempt }}-${{ github.sha }}
-          name: "Kazuji Debug #${{ github.run_number }}.${{ github.run_attempt }}"
-          body: |
-            APK de depuração para validar parsers no Kazuji.
-            Pré-lançamento para testes; esta não é uma versão estável.
-
-            Commit: `${{ github.sha }}`
-            Ref: `${{ github.ref_name }}`
-          draft: false
-          prerelease: true
-          make_latest: "false"
-          fail_on_unmatched_files: true
-          files: release-assets/app-debug.apk
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
