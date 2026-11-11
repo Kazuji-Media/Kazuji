@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="5" failures="2" errors="0" skipped="0" time="85.993" timestamp="2026-11-11T01:40:41" hostname="localhost">
+  <testsuite name="io.github.kazuji.core.parser.MangaCatalogRenderingTest" tests="3" failures="0" errors="0" skipped="0" time="10.474" timestamp="2026-11-11T01:40:41" hostname="localhost">
+    <properties>
+      <property name="device" value="Medium_Phone_API_36.1(AVD) - 16" />
+      <property name="flavor" value="" />
+      <property name="project" value=":app" />
+    </properties>
+    <testcase name="searchWaitsForHydrationBeforeReturningFirstPage" classname="io.github.kazuji.core.parser.MangaCatalogRenderingTest" time="8.295" />
+    <testcase name="detailsWaitsForHydrationBeforeAcceptingZeroChapters" classname="io.github.kazuji.core.parser.MangaCatalogRenderingTest" time="2.075" />
+    <testcase name="searchReturnsEmptyAfterExplicitNoResults" classname="io.github.kazuji.core.parser.MangaCatalogRenderingTest" time="0.104" />
+  </testsuite>
+  <testsuite name="io.github.kazuji.core.parser.MangaCatalogLiveTest" tests="2" failures="2" errors="0" skipped="0" time="74.016" timestamp="2026-11-11T01:40:41" hostname="localhost">
+    <properties>
+      <property name="device" value="Medium_Phone_API_36.1(AVD) - 16" />
+      <property name="flavor" value="" />
+      <property name="project" value=":app" />
+    </properties>
+    <testcase name="leitorDandadanChapterDisplaysRealImage" classname="io.github.kazuji.core.parser.MangaCatalogLiveTest" time="31.57">
+      <failure>io.github.kazuji.core.exceptions.InteractiveActionRequiredException: Interactive action is required for LEITORDEMANGA
+at io.github.kazuji.core.parser.MangaLoaderContextImpl.requestBrowserAction(MangaLoaderContextImpl.kt:81)
+at io.github.kazuji.core.parser.MangaCatalogLiveTest$TracingContext.requestBrowserAction(MangaCatalogLiveTest.kt:160)
+at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.ensureAccessIsAvailable(LeitorDeManga.kt:319)
+at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.getListPage$suspendImpl(LeitorDeManga.kt:78)
+at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser$getListPage$1.invokeSuspend(Unknown Source:16)
+at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:586)
+at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:829)
+at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:717)
+at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:704)
+</failure>
+    </testcase>
+    <testcase name="brasukasDandadanChapterDisplaysRealImage" classname="io.github.kazuji.core.parser.MangaCatalogLiveTest" time="42.446">
+      <failure>io.github.kazuji.core.exceptions.InteractiveActionRequiredException: Interactive action is required for MANGASBRASUKAS
+at io.github.kazuji.core.parser.MangaLoaderContextImpl.requestBrowserAction(MangaLoaderContextImpl.kt:81)
+at io.github.kazuji.core.parser.MangaCatalogLiveTest$TracingContext.requestBrowserAction(MangaCatalogLiveTest.kt:160)
+at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.ensureAccessIsAvailable(LeitorDeManga.kt:319)
+at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.getListPage$suspendImpl(LeitorDeManga.kt:78)
+at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser$getListPage$1.invokeSuspend(Unknown Source:16)
+at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:586)
+at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:829)
+at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:717)
+at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:704)
+</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

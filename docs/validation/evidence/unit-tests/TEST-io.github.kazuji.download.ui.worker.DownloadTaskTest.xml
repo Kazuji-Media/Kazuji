@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.kazuji.download.ui.worker.DownloadTaskTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-11T01:59:00.077Z" hostname="DESKTOP-IB5RC8E" time="0.036">
+  <properties/>
+  <testcase name="test DownloadTask serialization and deserialization" classname="io.github.kazuji.download.ui.worker.DownloadTaskTest" time="0.036"/>
+  <testcase name="test DownloadTask default values in Data constructor" classname="io.github.kazuji.download.ui.worker.DownloadTaskTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

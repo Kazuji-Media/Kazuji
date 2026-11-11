@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.koitharu.kotatsu.parsers.site.pt.LeitorDeMangaBrowserActionTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-11T02:05:05.963Z" hostname="DESKTOP-IB5RC8E" time="0.551">
+  <properties/>
+  <testcase name="cloudflareChallengeRequestsManualBrowserAction()" classname="org.koitharu.kotatsu.parsers.site.pt.LeitorDeMangaBrowserActionTest" time="0.51"/>
+  <testcase name="currentAdBlockerInterstitialRequestsManualBrowserAction()" classname="org.koitharu.kotatsu.parsers.site.pt.LeitorDeMangaBrowserActionTest" time="0.51"/>
+  <testcase name="mangasBrasukasAdBlockerInterstitialRequestsManualBrowserAction()" classname="org.koitharu.kotatsu.parsers.site.pt.LeitorDeMangaBrowserActionTest" time="0.008"/>
+  <testcase name="mangasBrasukasReaderInterstitialRequestsManualBrowserAction()" classname="org.koitharu.kotatsu.parsers.site.pt.LeitorDeMangaBrowserActionTest" time="0.009"/>
+  <testcase name="readerInterstitialRequestsManualBrowserAction()" classname="org.koitharu.kotatsu.parsers.site.pt.LeitorDeMangaBrowserActionTest" time="0.015"/>
+  <testcase name="preloadedReaderImagesAreParsedWithoutBrowserAction()" classname="org.koitharu.kotatsu.parsers.site.pt.LeitorDeMangaBrowserActionTest" time="0.031"/>
+  <testcase name="mangasBrasukasReaderPagesUseItsOwnDomain()" classname="org.koitharu.kotatsu.parsers.site.pt.LeitorDeMangaBrowserActionTest" time="0.015"/>
+  <system-out><![CDATA[NEXUS_RESULT title=O Filho Mais Novo do Mestre Espadachim; url=https://www.nexusmangas.com/obra/o-filho-mais-novo-do-mestre-espadachim; cover=https://supabase.nexusmangas.com/functions/v1/read-public-media?key=works%2Fcc6347a2-eea3-4113-bd8c-bcef8e072b39%2Fcover%2Fcover_1783708301304.webp; state=ONGOING
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

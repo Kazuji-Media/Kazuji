@@ -1,4 +1,5 @@
 import java.time.LocalDateTime
+import java.net.URI
 
 plugins {
 	id 'com.android.application'
@@ -14,6 +15,17 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
+def stableDevSigningEnabled = project.findProperty('stableDevSigning')?.toString()?.toBoolean() ?: false
+def mangaSharePageUri = URI.create(providers.gradleProperty('kazujiSharePageUrl')
+	.getOrElse('https://kazuji-reader.github.io/manga/'))
+def mangaSharePagePath = mangaSharePageUri.path?.replaceAll('/+$', '')
+if (mangaSharePageUri.scheme != 'https' || !mangaSharePageUri.host || !mangaSharePagePath ||
+	mangaSharePageUri.rawQuery || mangaSharePageUri.rawFragment) {
+	throw new GradleException(
+		'kazujiSharePageUrl must be an HTTPS URL with a host and page path, without query or fragment',
+	)
+}
+
 android {
 	compileSdk = 36
 	namespace = 'io.github.kazuji'
@@ -27,6 +39,11 @@ android {
 
 	defaultConfig {
 		applicationId 'io.github.kazuji'
+		buildConfigField 'String', 'MANGA_SHARE_PAGE_URL', "\"${mangaSharePageUri}\""
+		buildConfigField 'String', 'MANGA_SHARE_PAGE_PATH', "\"${mangaSharePagePath}\""
+		buildConfigField 'String', 'MANGA_SHARE_HOST', "\"${mangaSharePageUri.host}\""
+		manifestPlaceholders.mangaShareHost = mangaSharePageUri.host
+		manifestPlaceholders.mangaSharePathPrefix = mangaSharePagePath
 		minSdk = 23
 		targetSdk = 36
 		versionCode project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : 90804
@@ -54,10 +71,24 @@ android {
             keyAlias System.getenv('KEY_ALIAS') ?: System.console()?.readLine("Key alias: ")
             keyPassword = System.getenv('KEY_PASSWORD') ?: System.console()?.readPassword("Key password: ")?.toString()
 		}
+		if (stableDevSigningEnabled) {
+			stableDev {
+				storeFile file(System.getenv('DEV_KEYSTORE_FILE') ?: 'missing-dev-keystore.p12')
+				storeType 'PKCS12'
+				storePassword System.getenv('DEV_KEYSTORE_PASSWORD')
+				keyAlias System.getenv('DEV_KEY_ALIAS')
+				keyPassword System.getenv('DEV_KEY_PASSWORD')
+			}
+		}
 	}
 	buildTypes {
 		debug {
 			applicationIdSuffix = '.debug'
+			// PR/debug builds keep their disposable Android debug key.
+			// Only the trusted Stable Dev workflow enables a persistent dedicated key.
+			if (stableDevSigningEnabled) {
+				signingConfig signingConfigs.stableDev
+			}
 			buildConfigField "String", "SENTRY_DSN", '""'
 		}
 		release {
@@ -148,7 +179,7 @@ dependencies {
 		parsersVersion = System.getProperty('parsersVersionOverride')
 	}
 	//noinspection UseTomlInstead
-	implementation("com.github.joaovpimenta:kotatsu-parsers-redo:$parsersVersion") {
+	implementation("com.github.Kazuji-Media:kotatsu-parsers-redo:$parsersVersion") {
 		exclude group: 'org.json', module: 'json'
 	}
 

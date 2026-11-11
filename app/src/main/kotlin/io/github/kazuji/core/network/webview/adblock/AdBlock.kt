@@ -25,6 +25,12 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
+internal fun isAdBlockExemptDomain(host: String): Boolean = AD_BLOCK_EXEMPT_DOMAINS.any { domain ->
+	host.equals(domain, ignoreCase = true) || host.endsWith(".$domain", ignoreCase = true)
+}
+
+private val AD_BLOCK_EXEMPT_DOMAINS = setOf("leitordemangas.com", "mangasbrasuka.org")
+
 @Reusable
 class AdBlock @Inject constructor(
 	@ApplicationContext private val context: Context,
@@ -44,6 +50,9 @@ class AdBlock @Inject constructor(
 	@WorkerThread
 	fun shouldLoadUrl(url: HttpUrl, baseUrl: HttpUrl?): Boolean {
 		if (!settings.isAdBlockEnabled) {
+			return true
+		}
+		if (baseUrl != null && isAdBlockExemptDomain(baseUrl.host)) {
 			return true
 		}
 		return synchronized(this) {

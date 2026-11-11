@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.koitharu.kotatsu.parsers.site.madara.pt.NinjaScanTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-11T02:05:05.963Z" hostname="DESKTOP-IB5RC8E" time="0.538">
+  <properties/>
+  <testcase name="detailsRefreshAuthorsAlternativesAndRating()" classname="org.koitharu.kotatsu.parsers.site.madara.pt.NinjaScanTest" time="0.51"/>
+  <testcase name="ajaxChaptersUseNumbersFromTitlesInsteadOfListPositions()" classname="org.koitharu.kotatsu.parsers.site.madara.pt.NinjaScanTest" time="0.51"/>
+  <testcase name="detailsPreserveRealChapterNumbersAndIdentity()" classname="org.koitharu.kotatsu.parsers.site.madara.pt.NinjaScanTest" time="0.027"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

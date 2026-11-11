@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.koitharu.kotatsu.parsers.site.madara.pt.HuntersScanTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-11T02:05:06.077Z" hostname="DESKTOP-IB5RC8E" time="0.449">
+  <properties/>
+  <testcase name="laterHttpFailureDoesNotReturnAPartialChapterList()" classname="org.koitharu.kotatsu.parsers.site.madara.pt.HuntersScanTest" time="0.396"/>
+  <testcase name="completeChapterPaginationPreservesPublishedNumbersAndChronologicalOrder()" classname="org.koitharu.kotatsu.parsers.site.madara.pt.HuntersScanTest" time="0.396"/>
+  <testcase name="detailsWithoutAChapterHolderUseTheSameCompleteChapterLoader()" classname="org.koitharu.kotatsu.parsers.site.madara.pt.HuntersScanTest" time="0.396"/>
+  <testcase name="emptyAnnouncedChapterPageIsRejectedAsIncomplete()" classname="org.koitharu.kotatsu.parsers.site.madara.pt.HuntersScanTest" time="0.026"/>
+  <testcase name="cancellationWhileParsingALaterChapterPageIsPropagated()" classname="org.koitharu.kotatsu.parsers.site.madara.pt.HuntersScanTest" time="0.037"/>
+  <testcase name="genresUseTheObservedProjectPathAndGenrePrefix()" classname="org.koitharu.kotatsu.parsers.site.madara.pt.HuntersScanTest" time="0.024"/>
+  <testcase name="unnumberedSpecialIsNotAssignedAnInventedIndex()" classname="org.koitharu.kotatsu.parsers.site.madara.pt.HuntersScanTest" time="0.015"/>
+  <system-out><![CDATA[No cookies loaded!
+NEXUS_ONE_PIECE_DETAILS action_required=https://www.nexusmangas.com/obra/one-piece
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

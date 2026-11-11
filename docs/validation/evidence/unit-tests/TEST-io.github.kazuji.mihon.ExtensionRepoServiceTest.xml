@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.kazuji.mihon.ExtensionRepoServiceTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-11T01:59:00.130Z" hostname="DESKTOP-IB5RC8E" time="2.631">
+  <properties/>
+  <testcase name="testFetchAvailableExtensions_realKeiyoushiIndexPb" classname="io.github.kazuji.mihon.ExtensionRepoServiceTest" time="1.868"/>
+  <testcase name="testFetchAvailableExtensions_filtersOutdatedAndParsesLibVersions" classname="io.github.kazuji.mihon.ExtensionRepoServiceTest" time="0.658"/>
+  <testcase name="testNormalizeIndexUrl" classname="io.github.kazuji.mihon.ExtensionRepoServiceTest" time="0.005"/>
+  <testcase name="testFetchAvailableExtensions_protobufGzipSupport" classname="io.github.kazuji.mihon.ExtensionRepoServiceTest" time="0.1"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\gabri\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.14.15\b4cc9d88d5de562bf75b3a54ab436ad01b3f72d\byte-buddy-agent-1.14.15.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

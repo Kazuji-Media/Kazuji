@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.kazuji.download.ui.worker.DownloadSchedulerTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-11T01:59:00.073Z" hostname="DESKTOP-IB5RC8E" time="0.001">
+  <properties/>
+  <testcase name="test calculateSecondsUntilOffPeak" classname="io.github.kazuji.download.ui.worker.DownloadSchedulerTest" time="0.001"/>
+  <testcase name="test isOffPeakTime logic - overnight window" classname="io.github.kazuji.download.ui.worker.DownloadSchedulerTest" time="0.0"/>
+  <testcase name="test isOffPeakTime logic - same day window" classname="io.github.kazuji.download.ui.worker.DownloadSchedulerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,149 @@
+name: Parser nightly
+
+on:
+  repository_dispatch:
+    types: [parser-updated]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: parser-nightly
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Find parser revision and existing nightly
+        id: parser
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          sha=$(gh api repos/Kazuji-Media/kotatsu-parsers-redo/commits/master --jq .sha)
+          [[ "$sha" =~ ^[0-9a-f]{40}$ ]]
+          tag="nightly-parser-$sha"
+          current=$(sed -n 's/^parsers = "\([^"]*\)"$/\1/p' gradle/libs.versions.toml)
+          [[ -n "$current" && "$current" != *$'\n'* ]]
+          build=true
+          if [[ "$current" == "$sha" ]] && gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            build=false
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+
+      - name: Update parser version
+        if: steps.parser.outputs.build == 'true'
+        env:
+          PARSER_SHA: ${{ steps.parser.outputs.sha }}
+        run: |
+          python3 <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path('gradle/libs.versions.toml')
+          text = path.read_text(encoding='utf-8')
+          text, count = re.subn(r'(?m)^parsers = "[^"]+"$', f'parsers = "{os.environ["PARSER_SHA"]}"', text)
+          if count != 1:
+              raise SystemExit(f'Expected one parser version, found {count}')
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Wait for JitPack to publish the parser
+        if: steps.parser.outputs.build == 'true'
+        env:
+          PARSER_SHA: ${{ steps.parser.outputs.sha }}
+        run: |
+          set -euo pipefail
+          url="https://jitpack.io/com/github/Kazuji-Media/kotatsu-parsers-redo/$PARSER_SHA/kotatsu-parsers-redo-$PARSER_SHA.pom"
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 15 \
+            --retry-all-errors --connect-timeout 30 --max-time 600 --output /dev/null "$url"
+
+      - name: Setup Java
+        if: steps.parser.outputs.build == 'true'
+        uses: actions/setup-java@v6
+        with:
+          java-version: '17'
+          distribution: temurin
+          cache: gradle
+
+      - name: Setup Android SDK
+        if: steps.parser.outputs.build == 'true'
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools platforms;android-36 build-tools;36.0.0
+
+      - name: Prepare signing
+        if: steps.parser.outputs.build == 'true'
+        env:
+          KEYSTORE_FILE_BASE64: ${{ secrets.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for name in KEYSTORE_FILE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            [[ -n "${!name:-}" ]] || { echo "::error::Missing signing secret $name"; exit 1; }
+          done
+          printf '%s' "$KEYSTORE_FILE_BASE64" | base64 --decode > "$RUNNER_TEMP/nightly.jks"
+          chmod 600 "$RUNNER_TEMP/nightly.jks"
+          keytool -list -keystore "$RUNNER_TEMP/nightly.jks" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
+
+      - name: Build nightly APK
+        if: steps.parser.outputs.build == 'true'
+        env:
+          KEYSTORE_FILE: ${{ runner.temp }}/nightly.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          ./gradlew --no-daemon assembleNightly --stacktrace --no-configuration-cache
+          test -s app/build/outputs/apk/nightly/app-nightly.apk
+          sha256sum app/build/outputs/apk/nightly/app-nightly.apk
+
+      - name: Remove signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/nightly.jks"
+
+      - name: Commit tested parser version
+        id: commit
+        if: steps.parser.outputs.build == 'true'
+        env:
+          PARSER_SHA: ${{ steps.parser.outputs.sha }}
+        run: |
+          set -euo pipefail
+          if ! git diff --quiet -- gradle/libs.versions.toml; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add gradle/libs.versions.toml
+            git commit -m "chore: update parsers to $PARSER_SHA"
+            git push origin HEAD:main
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Publish parser nightly
+        if: steps.parser.outputs.build == 'true'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.parser.outputs.tag }}
+          target_commitish: ${{ steps.commit.outputs.sha }}
+          name: Kazuji nightly - parser ${{ steps.parser.outputs.sha }}
+          body: Built with parser revision `${{ steps.parser.outputs.sha }}`.
+          prerelease: true
+          make_latest: 'false'
+          fail_on_unmatched_files: true
+          files: app/build/outputs/apk/nightly/app-nightly.apk

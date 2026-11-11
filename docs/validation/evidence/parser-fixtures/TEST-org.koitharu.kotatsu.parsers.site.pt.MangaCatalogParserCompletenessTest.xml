@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserCompletenessTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-11T02:05:05.963Z" hostname="DESKTOP-IB5RC8E" time="0.613">
+  <properties/>
+  <testcase name="detailsDeduplicatesOverlappingChapterLinks()" classname="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserCompletenessTest" time="0.51"/>
+  <testcase name="detailsRejectsMissingCompletionMetadata()" classname="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserCompletenessTest" time="0.019"/>
+  <testcase name="detailsRejectsExplicitlyIncompleteChapterScan()" classname="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserCompletenessTest" time="0.007"/>
+  <testcase name="detailsRejectsChapterCountThatDoesNotMatchParsedLinks()" classname="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserCompletenessTest" time="0.018"/>
+  <testcase name="detailsParsesSmallMediumAndLongChapterLists()" classname="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserCompletenessTest" time="0.082"/>
+  <system-out><![CDATA[NEXUS_ONE_PIECE_SEARCH results=One Piece; url=https://www.nexusmangas.com/obra/one-piece; cover=https://supabase.nexusmangas.com/functions/v1/read-public-media?key=works%2Fcd336f4c-741a-493e-a3c5-ffef1fb4019d%2Fcover%2Fcover_1783103603780.webp; state=ONGOING | One Piece Gakuen; url=https://www.nexusmangas.com/obra/one-piece-gakuen; cover=https://supabase.nexusmangas.com/functions/v1/read-public-media?key=works%2F003c2ca0-deed-46ce-a9d5-ef4f4251f829%2Fcover%2Fcover_1784815479731.webp; state=ONGOING
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

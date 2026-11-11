@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.kazuji.core.network.webview.adblock.AdBlockDomainExceptionTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-11T01:59:00.034Z" hostname="DESKTOP-IB5RC8E" time="0.029">
+  <properties/>
+  <testcase name="exemptsOnlyTheConfiguredDomainsAndTheirSubdomains" classname="io.github.kazuji.core.network.webview.adblock.AdBlockDomainExceptionTest" time="0.027"/>
+  <testcase name="domainMatchingIsCaseInsensitive" classname="io.github.kazuji.core.network.webview.adblock.AdBlockDomainExceptionTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

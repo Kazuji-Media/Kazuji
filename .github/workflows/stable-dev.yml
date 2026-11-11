@@ -1,0 +1,153 @@
+name: Stable Dev Build
+
+# Installable Kazuji Dev APKs use one permanent, dedicated Dev keystore.
+# Run only from trusted main; never provide signing secrets to pull requests.
+on:
+  workflow_dispatch:
+    inputs:
+      publish_prerelease:
+        description: Publish the signed Dev APK as a GitHub prerelease
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout trusted code
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          java-version: '17'
+          distribution: temurin
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools platforms;android-36 build-tools;36.0.0
+
+      - name: Validate dedicated Dev signing secrets
+        shell: bash
+        env:
+          DEV_KEYSTORE_BASE64: ${{ secrets.DEV_KEYSTORE_BASE64 }}
+          DEV_KEYSTORE_PASSWORD: ${{ secrets.DEV_KEYSTORE_PASSWORD }}
+          DEV_KEY_ALIAS: ${{ secrets.DEV_KEY_ALIAS }}
+          DEV_KEY_PASSWORD: ${{ secrets.DEV_KEY_PASSWORD }}
+          DEV_CERT_SHA256: ${{ secrets.DEV_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          for key in DEV_KEYSTORE_BASE64 DEV_KEYSTORE_PASSWORD DEV_KEY_ALIAS DEV_KEY_PASSWORD DEV_CERT_SHA256; do
+            if [[ -z "${!key:-}" ]]; then
+              echo "::error::Missing dedicated Dev signing secret: $key"
+              exit 1
+            fi
+          done
+
+          printf '%s' "$DEV_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/kazuji-dev.p12"
+          test -s "$RUNNER_TEMP/kazuji-dev.p12"
+          keytool -list -keystore "$RUNNER_TEMP/kazuji-dev.p12" \
+            -storepass "$DEV_KEYSTORE_PASSWORD" -alias "$DEV_KEY_ALIAS" >/dev/null
+
+      - name: Build installable Kazuji Dev
+        shell: bash
+        env:
+          DEV_KEYSTORE_FILE: ${{ runner.temp }}/kazuji-dev.p12
+          DEV_KEYSTORE_PASSWORD: ${{ secrets.DEV_KEYSTORE_PASSWORD }}
+          DEV_KEY_ALIAS: ${{ secrets.DEV_KEY_ALIAS }}
+          DEV_KEY_PASSWORD: ${{ secrets.DEV_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          # Each workflow run receives a higher versionCode, even when a run fails.
+          version_code=$((910000 + GITHUB_RUN_NUMBER))
+          ./gradlew :app:assembleDebug \
+            -PstableDevSigning=true \
+            -PversionCode="$version_code" \
+            -PversionName="dev-$GITHUB_RUN_NUMBER" \
+            --stacktrace --no-build-cache --no-configuration-cache
+          test -s app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Verify Dev package and pinned signing certificate
+        shell: bash
+        env:
+          DEV_CERT_SHA256: ${{ secrets.DEV_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          apk=app/build/outputs/apk/debug/app-debug.apk
+          apksigner=$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name apksigner -type f | sort -V | tail -n 1)
+          aapt=$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name aapt -type f | sort -V | tail -n 1)
+          test -n "$apksigner" && test -n "$aapt"
+
+          "$apksigner" verify "$apk"
+          actual=$("$apksigner" verify --print-certs "$apk" \
+            | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n 1)
+          expected=$(printf '%s' "$DEV_CERT_SHA256" | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')
+          actual_normalized=$(printf '%s' "$actual" | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')
+          if [[ -z "$actual_normalized" || "$actual_normalized" != "$expected" ]]; then
+            echo "::error::Unexpected Kazuji Dev signing certificate; refusing to publish."
+            exit 1
+          fi
+
+          version_code=$((910000 + GITHUB_RUN_NUMBER))
+          badging=$("$aapt" dump badging "$apk" | grep '^package:' | head -n 1)
+          if [[ "$badging" != *"name='io.github.kazuji.debug'"* \
+            || "$badging" != *"versionCode='$version_code'"* ]]; then
+            echo "::error::Wrong package ID or versionCode: $badging"
+            exit 1
+          fi
+          echo "Verified Kazuji Dev certificate SHA-256: $actual_normalized"
+          echo "$badging"
+          sha256sum "$apk"
+
+      - name: Upload stable Dev APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: kazuji-dev-stable-signed-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Remove Dev keystore
+        if: always()
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/kazuji-dev.p12"
+
+  publish:
+    if: ${{ inputs.publish_prerelease }}
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download verified stable Dev APK
+        uses: actions/download-artifact@v8
+        with:
+          name: kazuji-dev-stable-signed-apk
+          path: artifacts
+
+      - name: Publish stable Dev prerelease
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: dev-stable-${{ github.run_number }}
+          name: "Kazuji Dev (stable signing) #${{ github.run_number }}"
+          draft: false
+          prerelease: true
+          make_latest: 'false'
+          body: |
+            Kazuji Dev, pacote `io.github.kazuji.debug`, assinado com a chave Dev permanente.
+            Builds futuras do Stable Dev Build podem atualizar esta instalação.
+
+            Este APK não atualiza builds antigas de CI assinadas com chaves temporárias.
+            Consulte a documentação de assinatura e recuperação no README:
+            https://github.com/Kazuji-Media/Kazuji#apk-signing-and-compatible-updates
+          files: artifacts/app-debug.apk
+          fail_on_unmatched_files: true

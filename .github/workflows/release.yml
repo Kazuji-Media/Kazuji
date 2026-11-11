@@ -6,131 +6,137 @@ on:
       - 'v*'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   check_version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      version_code: ${{ steps.version.outputs.version_code }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Get version from tag
-        id: tag
+      - name: Validate release tag and app versions
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          TAG=${GITHUB_REF#refs/tags/}
-          VERSION=${TAG#v}
-          echo "Tag version: $VERSION"
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-          PATCH=${PATCH:-0}
-          VERSION_CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          python3 <<'PY'
+          import os
+          import re
+          from pathlib import Path
 
-      - name: Read AndroidManifest versions
-        run: |
-          MANIFEST=app/src/main/AndroidManifest.xml
-          if [ ! -f "$MANIFEST" ]; then echo "Missing $MANIFEST" && exit 1; fi
-          MAN_VER=$(grep -oP 'android:versionName="\K[^"]+' "$MANIFEST" | head -n1)
-          MAN_CODE=$(grep -oP 'android:versionCode="\K[^\"]+' "$MANIFEST" | head -n1)
-          echo "manifest_version=$MAN_VER" >> $GITHUB_OUTPUT
-          echo "manifest_version_code=$MAN_CODE" >> $GITHUB_OUTPUT
-          echo "AndroidManifest: $MAN_VER ($MAN_CODE)"
+          tag = os.environ["RELEASE_TAG"]
+          match = re.fullmatch(r"v(?P<major>0|[1-9][0-9]*)\.(?P<minor>0|[1-9][0-9]*)\.(?P<patch>0|[1-9][0-9]*)", tag)
+          if match is None:
+              raise SystemExit(f"Expected a stable release tag like v9.8.5, got {tag!r}")
 
-      - name: Read build.gradle defaults
-        run: |
-          FILE=app/build.gradle
-          if [ ! -f "$FILE" ]; then echo "Missing $FILE" && exit 1; fi
-          GRADLE_VER=$(grep -oP "versionName project.hasProperty\\('versionName'\\) \\? project.property\\('versionName'\\) : '\\K[^']+" "$FILE" | head -n1 || true)
-          GRADLE_CODE=$(grep -oP "versionCode project.hasProperty\\('versionCode'\\) \\? project.property\\('versionCode'\\).toInteger\\(\\) : \\K[0-9]+" "$FILE" | head -n1 || true)
-          echo "gradle_version=$GRADLE_VER" >> $GITHUB_OUTPUT
-          echo "gradle_version_code=$GRADLE_CODE" >> $GITHUB_OUTPUT
-          echo "build.gradle defaults: $GRADLE_VER ($GRADLE_CODE)"
+          major, minor, patch = (int(match.group(name)) for name in ("major", "minor", "patch"))
+          if minor > 99 or patch > 99:
+              raise SystemExit("The version code format requires minor and patch versions below 100")
+          version = f"{major}.{minor}.{patch}"
+          version_code = major * 10000 + minor * 100 + patch
 
-      - name: Compare tag with files
-        run: |
-          set -e
-          TAG=${GITHUB_REF#refs/tags/}
-          VERSION=${TAG#v}
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-          PATCH=${PATCH:-0}
-          EXPECTED_CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
+          manifest = Path("app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
+          manifest_version = re.search(r'android:versionName="([^"]+)"', manifest)
+          manifest_code = re.search(r'android:versionCode="([^"]+)"', manifest)
+          if manifest_version is None or manifest_code is None:
+              raise SystemExit("AndroidManifest.xml must declare versionName and versionCode")
 
-          MAN_VER=$(grep -oP 'android:versionName="\K[^"]+' app/src/main/AndroidManifest.xml | head -n1)
-          MAN_CODE=$(grep -oP 'android:versionCode="\K[^\"]+' app/src/main/AndroidManifest.xml | head -n1)
+          gradle = Path("app/build.gradle").read_text(encoding="utf-8")
+          gradle_version = re.search(
+              r"(?m)^\s*versionName\s+project\.hasProperty\('versionName'\)\s*\?\s*"
+              r"project\.property\('versionName'\)\s*:\s*'([^']+)'",
+              gradle,
+          )
+          gradle_code = re.search(
+              r"(?m)^\s*versionCode\s+project\.hasProperty\('versionCode'\)\s*\?\s*"
+              r"project\.property\('versionCode'\)\.toInteger\(\)\s*:\s*([0-9]+)",
+              gradle,
+          )
+          if gradle_version is None or gradle_code is None:
+              raise SystemExit("Could not read default versionName/versionCode from app/build.gradle")
 
-          GRADLE_VER=$(grep -oP "versionName project.hasProperty\\('versionName'\\) \\? project.property\\('versionName'\\) : '\\K[^']+" app/build.gradle | head -n1 || true)
-          GRADLE_CODE=$(grep -oP "versionCode project.hasProperty\\('versionCode'\\) \\? project.property\\('versionCode'\\).toInteger\\(\\) : \\K[0-9]+" app/build.gradle | head -n1 || true)
+          actual = {
+              "AndroidManifest versionName": manifest_version.group(1),
+              "app/build.gradle versionName": gradle_version.group(1),
+          }
+          for source, value in actual.items():
+              if value != version:
+                  raise SystemExit(f"{source} is {value}, but tag {tag} requires {version}")
 
-          echo "Tag: $VERSION ($EXPECTED_CODE)"
-          echo "AndroidManifest: $MAN_VER ($MAN_CODE)"
-          echo "build.gradle: $GRADLE_VER ($GRADLE_CODE)"
+          actual_codes = {
+              "AndroidManifest versionCode": int(manifest_code.group(1)),
+              "app/build.gradle versionCode": int(gradle_code.group(1)),
+          }
+          for source, value in actual_codes.items():
+              if value != version_code:
+                  raise SystemExit(f"{source} is {value}, but tag {tag} requires {version_code}")
 
-          if [ "$MAN_VER" != "$VERSION" ]; then echo "ERROR: AndroidManifest versionName ($MAN_VER) does not match tag ($VERSION)" && exit 1; fi
-          if [ "$GRADLE_VER" != "$VERSION" ]; then echo "ERROR: app/build.gradle default versionName ($GRADLE_VER) does not match tag ($VERSION)" && exit 1; fi
-          if [ "$MAN_CODE" != "$EXPECTED_CODE" ]; then echo "ERROR: AndroidManifest versionCode ($MAN_CODE) does not match expected ($EXPECTED_CODE)" && exit 1; fi
-          if [ "$GRADLE_CODE" != "$EXPECTED_CODE" ]; then echo "ERROR: app/build.gradle default versionCode ($GRADLE_CODE) does not match expected ($EXPECTED_CODE)" && exit 1; fi
-          echo "Version check passed."
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"version={version}\n")
+              output.write(f"version_code={version_code}\n")
+          print(f"Validated release {tag}: versionName={version}, versionCode={version_code}")
+          PY
 
   build:
     needs: check_version
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
 
     steps:
       - name: Notify Discord - Build Started
         env:
           WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_BUILD }}
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          if [ -z "$WEBHOOK" ]; then exit 0; fi
-          payload=$(jq -n --arg content "Build started for ${{ github.ref_name }}" '{content: $content}')
-          curl -s -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" || true
+          if [[ -z "${WEBHOOK:-}" ]]; then exit 0; fi
+          payload=$(jq -n --arg content "Build started for ${RELEASE_TAG}" '{content: $content}')
+          curl -fsS -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" || true
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: gradle
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
         with:
-          packages: platform-tools
+          packages: platform-tools platforms;android-36 build-tools;36.0.0
 
-      - name: Notify Discord - Environment Setup Complete
+      - name: Prepare release signing
         env:
-          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_BUILD }}
+          KEYSTORE_FILE_BASE64: ${{ secrets.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          if [ -z "$WEBHOOK" ]; then exit 0; fi
-          payload=$(jq -n --arg content "Environment setup complete (Java 17, Android SDK)" '{content: $content}')
-          curl -s -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" || true
+          set -euo pipefail
+          missing=()
+          for name in KEYSTORE_FILE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [[ -z "${!name:-}" ]]; then
+              missing+=("${name/KEYSTORE_FILE_BASE64/KEYSTORE_FILE}")
+            fi
+          done
+          if (( ${#missing[@]} > 0 )); then
+            printf 'Missing GitHub Actions signing secret(s): %s\n' "${missing[*]}" >&2
+            exit 1
+          fi
 
-      - name: Get version from tag
-        id: version
-        run: |
-          TAG=${GITHUB_REF#refs/tags/}
-          VERSION=${TAG#v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          # Extract major.minor.patch and calculate version code
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION" 
-          PATCH=${PATCH:-0}
-          VERSION_CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
-          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
-
-      - name: Decode keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > keystore.jks
-
-      - name: Notify Discord - Keystore Decoded
-        env:
-          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_BUILD }}
-        run: |
-          if [ -z "$WEBHOOK" ]; then exit 0; fi
-          payload=$(jq -n --arg content "Keystore decoded" '{content: $content}')
-          curl -s -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" || true
+          printf '%s' "$KEYSTORE_FILE_BASE64" | base64 --decode > keystore.jks
+          chmod 600 keystore.jks
+          test -s keystore.jks
+          keytool -list -keystore keystore.jks -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
 
       - name: Build release APK
         env:
@@ -140,50 +146,61 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          VERSION: ${{ needs.check_version.outputs.version }}
+          VERSION_CODE: ${{ needs.check_version.outputs.version_code }}
         run: |
-          ./gradlew assembleRelease \
-            -PversionName=${{ steps.version.outputs.version }} \
-            -PversionCode=${{ steps.version.outputs.version_code }} \
-            --no-build-cache --no-configuration-cache
+          ./gradlew --no-daemon assembleRelease \
+            -PversionName="$VERSION" \
+            -PversionCode="$VERSION_CODE" \
+            --stacktrace --no-configuration-cache
 
-      - name: Notify Discord - APK Build Complete
-        env:
-          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_BUILD }}
+      - name: Verify release APK
         run: |
-          if [ -z "$WEBHOOK" ]; then exit 0; fi
-          payload=$(jq -n --arg content "Release APK build complete" '{content: $content}')
-          curl -s -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" || true
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Kazuji ${{ steps.version.outputs.version }}
-          draft: false
-          prerelease: false
-          files: |
-            app/build/outputs/apk/release/app-release.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Notify Discord - Release Published
-        env:
-          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_BUILD }}
-          RELEASE_URL: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
-        run: |
-          if [ -z "$WEBHOOK" ]; then exit 0; fi
-          payload=$(jq -n --arg content "Release published: ${{ github.ref_name }}\n$RELEASE_URL" '{content: $content}')
-          curl -s -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" || true
+          apk=app/build/outputs/apk/release/app-release.apk
+          test -s "$apk"
+          ls -lh "$apk"
+          sha256sum "$apk"
 
       - name: Clean up keystore
         if: always()
         run: rm -f keystore.jks
 
+      - name: Notify Discord - APK Build Complete
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_BUILD }}
+        run: |
+          if [[ -z "${WEBHOOK:-}" ]]; then exit 0; fi
+          payload=$(jq -n --arg content "Release APK build complete" '{content: $content}')
+          curl -fsS -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" || true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Kazuji ${{ needs.check_version.outputs.version }}
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
+          files: app/build/outputs/apk/release/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Notify Discord - Release Published
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_BUILD }}
+          RELEASE_URL: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}
+        run: |
+          if [[ -z "${WEBHOOK:-}" ]]; then exit 0; fi
+          payload=$(jq -n --arg content "Release published: ${RELEASE_URL}" '{content: $content}')
+          curl -fsS -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" || true
+
       - name: Notify Discord - Build Failed
         if: failure()
         env:
           WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_BUILD }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          if [ -z "$WEBHOOK" ]; then exit 0; fi
-          payload=$(jq -n --arg content "Build failed for ${{ github.ref_name }}\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" '{content: $content}')
-          curl -s -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" || true
+          if [[ -z "${WEBHOOK:-}" ]]; then exit 0; fi
+          payload=$(jq -n --arg content "Build failed for ${RELEASE_TAG}: ${RUN_URL}" '{content: $content}')
+          curl -fsS -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" || true

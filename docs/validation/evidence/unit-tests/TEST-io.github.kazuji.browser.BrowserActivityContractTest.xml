@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.kazuji.browser.BrowserActivityContractTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-11T01:58:59.987Z" hostname="DESKTOP-IB5RC8E" time="0.01">
+  <properties/>
+  <testcase name="onlyExplicitCompletionReturnsSuccess" classname="io.github.kazuji.browser.BrowserActivityContractTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

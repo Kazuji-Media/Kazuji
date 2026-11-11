@@ -31,7 +31,7 @@ dependencyResolutionManagement {
 if (providers.gradleProperty('useLocalParsers').orNull == 'true') {
 	includeBuild('../kotatsu-parsers-redo') {
 		dependencySubstitution {
-			substitute(module('com.github.joaovpimenta:kotatsu-parsers-redo')).using(project(':'))
+			substitute(module('com.github.Kazuji-Media:kotatsu-parsers-redo')).using(project(':'))
 		}
 	}
 }

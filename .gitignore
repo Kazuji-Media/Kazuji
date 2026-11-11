@@ -41,3 +41,7 @@ replay_pid*.log
 *.keystore
 .idea/
 gradle.properties
+
+# Local agent worktrees and temporary chat attachments
+/.worktrees/
+/.codex-remote-attachments/

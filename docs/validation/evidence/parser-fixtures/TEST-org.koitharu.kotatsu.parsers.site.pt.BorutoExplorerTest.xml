@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.koitharu.kotatsu.parsers.site.pt.BorutoExplorerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-11T02:05:06.050Z" hostname="DESKTOP-IB5RC8E" time="0.489">
+  <properties/>
+  <testcase name="readerWithoutImagesFailsWithChapterUrl()" classname="org.koitharu.kotatsu.parsers.site.pt.BorutoExplorerTest" time="0.423"/>
+  <testcase name="loginGateKeepsAuthenticationError()" classname="org.koitharu.kotatsu.parsers.site.pt.BorutoExplorerTest" time="0.01"/>
+  <testcase name="textOnlyChapterReportsUnsupportedContent()" classname="org.koitharu.kotatsu.parsers.site.pt.BorutoExplorerTest" time="0.008"/>
+  <testcase name="detailsKeepAjaxChapterFallbackWhenChapterListIsNotInline()" classname="org.koitharu.kotatsu.parsers.site.pt.BorutoExplorerTest" time="0.047"/>
+  <testcase name="detailsPreserveIdentityAndParseRealNumbersVolumesAndTitleDates()" classname="org.koitharu.kotatsu.parsers.site.pt.BorutoExplorerTest" time="0.043"/>
+  <testcase name="readerReturnsOnlyChapterImagesInObservedOrderAndTrimsSourceUrls()" classname="org.koitharu.kotatsu.parsers.site.pt.BorutoExplorerTest" time="0.025"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.kazuji.reader.domain.SmartResumeResolverTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-11T01:59:03.062Z" hostname="DESKTOP-IB5RC8E" time="0.304">
+  <properties/>
+  <testcase name="percentage boundary counts the current page" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.003"/>
+  <testcase name="unknown completion mode defaults to percentage" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.0"/>
+  <testcase name="old chapter existing successor and unfinished positions never advance" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.025"/>
+  <testcase name="cancellation propagates" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.014"/>
+  <testcase name="pages remaining allows the final and second to last page" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.001"/>
+  <testcase name="normal flow completion can release a deferred start" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.032"/>
+  <testcase name="explicit restored recovered and new starts have no eligible history" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.022"/>
+  <testcase name="previously latest advances only one chapter and resets scroll" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.022"/>
+  <testcase name="cached decision cannot jump after an update" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.03"/>
+  <testcase name="update failure permanently releases original state" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.031"/>
+  <testcase name="empty and failing successors fall back to the exact position" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.031"/>
+  <testcase name="missing chapter and different branch do not advance" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.04"/>
+  <testcase name="short chapters invalid positions and large counts" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.001"/>
+  <testcase name="waiting holds the original history until updated details arrive" classname="io.github.kazuji.reader.domain.SmartResumeResolverTest" time="0.051"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

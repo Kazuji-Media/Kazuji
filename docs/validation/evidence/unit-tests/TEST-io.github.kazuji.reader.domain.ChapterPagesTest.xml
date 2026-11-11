@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.kazuji.reader.domain.ChapterPagesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-11T01:59:02.769Z" hostname="DESKTOP-IB5RC8E" time="0.019">
+  <properties/>
+  <testcase name="subList" classname="io.github.kazuji.reader.domain.ChapterPagesTest" time="0.018"/>
+  <testcase name="removeFirst" classname="io.github.kazuji.reader.domain.ChapterPagesTest" time="0.001"/>
+  <testcase name="getChaptersSize" classname="io.github.kazuji.reader.domain.ChapterPagesTest" time="0.0"/>
+  <testcase name="clear" classname="io.github.kazuji.reader.domain.ChapterPagesTest" time="0.0"/>
+  <testcase name="removeLast" classname="io.github.kazuji.reader.domain.ChapterPagesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

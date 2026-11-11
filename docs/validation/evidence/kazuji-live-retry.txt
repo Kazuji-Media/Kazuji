@@ -1,0 +1,119 @@
+INSTRUMENTATION_STATUS: class=io.github.kazuji.core.parser.MangaCatalogLiveTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+io.github.kazuji.core.parser.MangaCatalogLiveTest:
+INSTRUMENTATION_STATUS: test=leitorDandadanChapterDisplaysRealImage
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=io.github.kazuji.core.parser.MangaCatalogLiveTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=io.github.kazuji.core.exceptions.InteractiveActionRequiredException: Interactive action is required for LEITORDEMANGA
+	at io.github.kazuji.core.parser.MangaLoaderContextImpl.requestBrowserAction(MangaLoaderContextImpl.kt:81)
+	at io.github.kazuji.core.parser.MangaCatalogLiveTest$TracingContext.requestBrowserAction(MangaCatalogLiveTest.kt:160)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.ensureAccessIsAvailable(LeitorDeManga.kt:319)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.getListPage$suspendImpl(LeitorDeManga.kt:78)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser$getListPage$1.invokeSuspend(Unknown Source:16)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:586)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:829)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:717)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:704)
+
+INSTRUMENTATION_STATUS: stream=
+Error in leitorDandadanChapterDisplaysRealImage(io.github.kazuji.core.parser.MangaCatalogLiveTest):
+io.github.kazuji.core.exceptions.InteractiveActionRequiredException: Interactive action is required for LEITORDEMANGA
+	at io.github.kazuji.core.parser.MangaLoaderContextImpl.requestBrowserAction(MangaLoaderContextImpl.kt:81)
+	at io.github.kazuji.core.parser.MangaCatalogLiveTest$TracingContext.requestBrowserAction(MangaCatalogLiveTest.kt:160)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.ensureAccessIsAvailable(LeitorDeManga.kt:319)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.getListPage$suspendImpl(LeitorDeManga.kt:78)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser$getListPage$1.invokeSuspend(Unknown Source:16)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:586)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:829)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:717)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:704)
+
+INSTRUMENTATION_STATUS: test=leitorDandadanChapterDisplaysRealImage
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=io.github.kazuji.core.parser.MangaCatalogLiveTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=brasukasDandadanChapterDisplaysRealImage
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=io.github.kazuji.core.parser.MangaCatalogLiveTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=io.github.kazuji.core.exceptions.InteractiveActionRequiredException: Interactive action is required for MANGASBRASUKAS
+	at io.github.kazuji.core.parser.MangaLoaderContextImpl.requestBrowserAction(MangaLoaderContextImpl.kt:81)
+	at io.github.kazuji.core.parser.MangaCatalogLiveTest$TracingContext.requestBrowserAction(MangaCatalogLiveTest.kt:160)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.ensureAccessIsAvailable(LeitorDeManga.kt:319)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.getListPage$suspendImpl(LeitorDeManga.kt:78)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser$getListPage$1.invokeSuspend(Unknown Source:16)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:586)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:829)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:717)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:704)
+
+INSTRUMENTATION_STATUS: stream=
+Error in brasukasDandadanChapterDisplaysRealImage(io.github.kazuji.core.parser.MangaCatalogLiveTest):
+io.github.kazuji.core.exceptions.InteractiveActionRequiredException: Interactive action is required for MANGASBRASUKAS
+	at io.github.kazuji.core.parser.MangaLoaderContextImpl.requestBrowserAction(MangaLoaderContextImpl.kt:81)
+	at io.github.kazuji.core.parser.MangaCatalogLiveTest$TracingContext.requestBrowserAction(MangaCatalogLiveTest.kt:160)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.ensureAccessIsAvailable(LeitorDeManga.kt:319)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.getListPage$suspendImpl(LeitorDeManga.kt:78)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser$getListPage$1.invokeSuspend(Unknown Source:16)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:586)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:829)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:717)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:704)
+
+INSTRUMENTATION_STATUS: test=brasukasDandadanChapterDisplaysRealImage
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 66.488
+There were 2 failures:
+1) leitorDandadanChapterDisplaysRealImage(io.github.kazuji.core.parser.MangaCatalogLiveTest)
+io.github.kazuji.core.exceptions.InteractiveActionRequiredException: Interactive action is required for LEITORDEMANGA
+	at io.github.kazuji.core.parser.MangaLoaderContextImpl.requestBrowserAction(MangaLoaderContextImpl.kt:81)
+	at io.github.kazuji.core.parser.MangaCatalogLiveTest$TracingContext.requestBrowserAction(MangaCatalogLiveTest.kt:160)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.ensureAccessIsAvailable(LeitorDeManga.kt:319)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.getListPage$suspendImpl(LeitorDeManga.kt:78)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser$getListPage$1.invokeSuspend(Unknown Source:16)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:586)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:829)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:717)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:704)
+2) brasukasDandadanChapterDisplaysRealImage(io.github.kazuji.core.parser.MangaCatalogLiveTest)
+io.github.kazuji.core.exceptions.InteractiveActionRequiredException: Interactive action is required for MANGASBRASUKAS
+	at io.github.kazuji.core.parser.MangaLoaderContextImpl.requestBrowserAction(MangaLoaderContextImpl.kt:81)
+	at io.github.kazuji.core.parser.MangaCatalogLiveTest$TracingContext.requestBrowserAction(MangaCatalogLiveTest.kt:160)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.ensureAccessIsAvailable(LeitorDeManga.kt:319)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser.getListPage$suspendImpl(LeitorDeManga.kt:78)
+	at org.koitharu.kotatsu.parsers.site.madara.pt.MangaCatalogParser$getListPage$1.invokeSuspend(Unknown Source:16)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:586)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:829)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:717)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:704)
+
+FAILURES!!!
+Tests run: 2,  Failures: 2
+
+
+INSTRUMENTATION_CODE: -1

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserSearchTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-11T02:05:05.948Z" hostname="DESKTOP-IB5RC8E" time="0.57">
+  <properties/>
+  <testcase name="searchAllowsCardsWithoutCover()" classname="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserSearchTest" time="0.525"/>
+  <testcase name="detailsParseAuthorsDescriptionAndCompleteChapterList()" classname="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserSearchTest" time="0.029"/>
+  <testcase name="mangasBrasukasSearchUsesBuscaRouteAndFindsDandadan()" classname="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserSearchTest" time="0.007"/>
+  <testcase name="leitorSearchUsesCatalogQueryAndFindsDandadan()" classname="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserSearchTest" time="0.008"/>
+  <testcase name="mangasBrasukasBrowseUsesCatalogInsteadOfEmptySearch()" classname="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserSearchTest" time="0.006"/>
+  <testcase name="detailsFailWhenLazyChapterListIsIncomplete()" classname="org.koitharu.kotatsu.parsers.site.pt.MangaCatalogParserSearchTest" time="0.015"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

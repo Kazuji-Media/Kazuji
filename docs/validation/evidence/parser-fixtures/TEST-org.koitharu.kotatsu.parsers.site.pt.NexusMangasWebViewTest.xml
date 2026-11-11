@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.koitharu.kotatsu.parsers.site.pt.NexusMangasWebViewTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-11T02:05:05.948Z" hostname="DESKTOP-IB5RC8E" time="0.567">
+  <properties/>
+  <testcase name="pagesIncludeOnlyRenderedChapterPagesAndSkipAdImages()" classname="org.koitharu.kotatsu.parsers.site.pt.NexusMangasWebViewTest" time="0.525"/>
+  <testcase name="onePieceDetailsRequestsManualActionAtWebsiteGate()" classname="org.koitharu.kotatsu.parsers.site.pt.NexusMangasWebViewTest" time="0.525"/>
+  <testcase name="detailsExtractsChapterTitleAndUploadDateFromSeparateCardFields()" classname="org.koitharu.kotatsu.parsers.site.pt.NexusMangasWebViewTest" time="0.017"/>
+  <testcase name="pagesWithoutImagesFailInsteadOfReturningAnEmptyChapter()" classname="org.koitharu.kotatsu.parsers.site.pt.NexusMangasWebViewTest" time="0.025"/>
+  <testcase name="searchResultExtractsTitleAndCoverFromRenderedCard()" classname="org.koitharu.kotatsu.parsers.site.pt.NexusMangasWebViewTest" time="0.026"/>
+  <testcase name="onePieceSearchExtractsBothRenderedResults()" classname="org.koitharu.kotatsu.parsers.site.pt.NexusMangasWebViewTest" time="0.011"/>
+  <testcase name="popularListReturnsMangaWhenWebViewPageIsReady()" classname="org.koitharu.kotatsu.parsers.site.pt.NexusMangasWebViewTest" time="0.023"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
