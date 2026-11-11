@@ -1,0 +1,110 @@
+name: PT-BR validation APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publish the validation APK as a pre-release
+        type: boolean
+        required: true
+        default: false
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout Kazuji
+        uses: actions/checkout@v4
+        with:
+          path: app-source
+      - name: Read pinned parser revision
+        id: parser
+        working-directory: app-source
+        run: |
+          PARSER_REV=$(python3 -c 'import tomllib; print(tomllib.load(open("gradle/libs.versions.toml", "rb"))["versions"]["parsers"])')
+          echo "revision=$PARSER_REV" >> "$GITHUB_OUTPUT"
+      - name: Checkout exact parser revision
+        uses: actions/checkout@v4
+        with:
+          repository: Kazuji-Reader/kotatsu-parsers-redo
+          ref: ${{ steps.parser.outputs.revision }}
+          path: kotatsu-parsers-redo
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - name: Validate parser fixtures
+        working-directory: kotatsu-parsers-redo
+        run: |
+          chmod +x gradlew
+          ./gradlew test --no-daemon --stacktrace \
+            --tests '*NexusMangasWebViewTest' \
+            --tests '*LeitorDeMangaBrowserActionTest' \
+            --tests '*BorutoExplorerTest' \
+            --tests '*HuntersScanTest' \
+            --tests '*NinjaScanTest'
+      - name: Build validation APK
+        working-directory: app-source
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug -PuseLocalParsers=true \
+            -PversionName=9.8.5-ptbr-lote1 --no-daemon --stacktrace
+      - name: Record build identity
+        run: |
+          APP_REV=$(git -C app-source rev-parse HEAD)
+          PARSER_REV=$(git -C kotatsu-parsers-redo rev-parse HEAD)
+          printf 'App: %s\nParsers: %s\nRun: %s\n' "$APP_REV" "$PARSER_REV" \
+            "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" > app-source/app/build/outputs/apk/debug/BUILD-IDENTITY.txt
+          sha256sum app-source/app/build/outputs/apk/debug/app-debug.apk >> app-source/app/build/outputs/apk/debug/BUILD-IDENTITY.txt
+      - name: Upload APK and validation guide
+        uses: actions/upload-artifact@v4
+        with:
+          name: kazuji-pt-br-lote1
+          path: |
+            app-source/app/build/outputs/apk/debug/app-debug.apk
+            app-source/app/build/outputs/apk/debug/BUILD-IDENTITY.txt
+            app-source/docs/plans/VALIDACAO-LOTE-1.md
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload parser test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pt-br-test-reports
+          path: kotatsu-parsers-redo/build/reports/tests/test/
+          if-no-files-found: warn
+          retention-days: 14
+
+  publish:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_release }}
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: kazuji-pt-br-lote1
+          path: release-assets
+      - name: Publish validation APK
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: pt-br-lote1-${{ github.run_id }}-${{ github.run_attempt }}
+          name: Kazuji PT-BR lote 1
+          body: |
+            APK de validação das fontes brasileiras. Versão de teste 9.8.5-ptbr-lote1.
+            Consulte VALIDACAO-LOTE-1.md para fontes, buscas e critérios.
+            BUILD-IDENTITY.txt registra os commits exatos e o SHA-256 do APK.
+          prerelease: true
+          make_latest: 'false'
+          fail_on_unmatched_files: true
+          files: release-assets/**/*
