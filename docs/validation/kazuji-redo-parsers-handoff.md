@@ -153,6 +153,49 @@ O usuário já autorizou a exceção de AdBlock limitada aos dois domínios; nã
 
 ## Comandos e ambiente que funcionaram
 
+### Validar uma alteração no checkout local do Redo
+
+O `settings.gradle` do Kazuji já inclui `../kotatsu-parsers-redo` quando `-PuseLocalParsers=true`; assim, a build do
+app consome o código atual do checkout sem publicar no JitPack. Para validar uma fonte, rode primeiro os checks de
+rede da biblioteca (a seleção não altera arquivos do parser):
+
+```powershell
+Push-Location ..\kotatsu-parsers-redo
+.\gradlew.bat test --tests 'org.koitharu.kotatsu.parsers.MangaParserTest' -PmangaSources=LEITORDEMANGA
+Pop-Location
+```
+
+Passe vários nomes separados por vírgula em `-PmangaSources`, usando os nomes de `MangaParserSource`. Depois compile
+o app com o checkout local:
+
+```powershell
+.\gradlew.bat assembleDebug -PuseLocalParsers=true
+```
+
+Para validar Manga Livre no Android com o `MangaLoaderContext` real do Kazuji, rode o teste instrumentado no emulador:
+
+```powershell
+.\gradlew.bat connectedDebugAndroidTest `
+  '-Pandroid.testInstrumentationRunnerArguments.class=io.github.kazuji.core.parser.MangaLivreLiveTest'
+```
+
+O teste procura One Piece, exige detalhes e capítulos, extrai o capítulo 1 e verifica as URLs de imagem em três páginas.
+Ele usa o parser remoto pinado em `gradle/libs.versions.toml` e falha se a fonte continuar marcada como quebrada, se
+o site pedir uma ação interativa ou se a extração estiver incompleta.
+
+Para validar comportamento real dentro do app, com emulador/dispositivo conectado, execute o teste live opt-in já
+existente:
+
+```powershell
+.\gradlew.bat connectedDebugAndroidTest -PuseLocalParsers=true `
+  '-Pandroid.testInstrumentationRunnerArguments.class=io.github.kazuji.core.parser.MangaCatalogLiveTest' `
+  '-Pandroid.testInstrumentationRunnerArguments.liveCatalogValidation=true'
+```
+
+O teste live atual cobre LeitorDeManga e Mangas Brasukas e depende de sites acessíveis; falha de rede/site deve ser
+interpretada separadamente de falha de compilação ou de fixtures. Os checks de `MangaParserTest` também fazem
+requisições reais e podem falhar por indisponibilidade da fonte.
+
 No PowerShell, para builds locais com o checkout do Redo:
 
 ```powershell
