@@ -36,6 +36,7 @@ moshi = "1.15.2"
 okhttp = "5.2.1"
 okio = "3.16.1"
 parsers = "312cb180e882ea9eb8506fb50408de61b2e522b5"
+# JitPack publication diagnostics
 preference = "1.2.1"
 quickjsKt = "1.0.5"
 recyclerview = "1.4.0"
