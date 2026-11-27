@@ -603,3 +603,9 @@ class MyWorker @AssistedInject constructor(
 ---
 
 **Generated for AI coding agents operating in this repository.**
+
+## Android Emulator hygiene (local Windows)
+
+- Before starting an AVD (especially headless with `-no-window`), check `adb devices -l` and active `emulator.exe`/`qemu-system-*` processes so a duplicate instance is never launched on the same port (e.g. `5554`).
+- Always shut down any emulator started during a task — including on failure or timeout — with `adb -s <serial> emu kill` (e.g. `adb -s emulator-5554 emu kill`) and verify that `emulator.exe`, `qemu-system-*`, and SDK `crashpad_handler.exe` processes have exited.
+- If `crashpad_handler.exe` throws cascading `0x80000003` pop-ups (`System -> Application Popup`, Event ID `26`), terminate only orphaned processes under `%LOCALAPPDATA%\Android\Sdk\emulator\`, clear `%LOCALAPPDATA%\Temp\AndroidEmulator` (corrupted `emu-crash-*.db` / orphaned `TMP*.tmp.qcow2`), and update `emulator` + `platform-tools` via SDK Manager.
